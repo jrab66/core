@@ -163,6 +163,20 @@ jobs:
           ref: main
           context: local
 
+      - name: Clone the fork CLI with proxmox support
+        run: git clone --depth 1 --branch feat/proxmox-platform https://github.com/jrab66/cli.git /tmp/windsor-cli
+
+      - name: Setup Go for the fork CLI
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: /tmp/windsor-cli/go.mod
+
+      - name: Replace the Windsor CLI with the fork build
+        run: |
+          go -C /tmp/windsor-cli build -o /tmp/windsor ./cmd/windsor/main.go
+          sudo install -m 0755 /tmp/windsor "$(command -v windsor)"
+          windsor version
+
       - name: Run Tests
         run: task test
 
